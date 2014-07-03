@@ -60,6 +60,9 @@ static const int fHaveUPnP = true;
 static const int fHaveUPnP = false;
 #endif
 
+int CurrentTransactionVersion();
+static const unsigned int MAX_TX_COMMENT_LEN = 140; // maximum length of transaction comment stored in blockchain
+static const int64 V2_HARDFORK_BLOCK = 517200; // time when transaction comments will start being included in the blockchain
 
 extern CScript COINBASE_FLAGS;
 

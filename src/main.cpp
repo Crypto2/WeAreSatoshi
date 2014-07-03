@@ -466,11 +466,12 @@ unsigned int LimitOrphanTxSize(unsigned int nMaxOrphans)
     return nEvicted;
 }
 
-
-
-
-
-
+int CurrentTransactionVersion() {
+    if (nBestHeight >= V2_HARDFORK_BLOCK) {
+        return CTransaction::CURRENT_VERSION;
+    }
+    return CTransaction::ORIGINAL_VERSION;
+}
 
 bool IsStandardTx(const CTransaction& tx, string& reason)
 {
@@ -478,6 +479,10 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
         reason = "version";
         return false;
     }
+    
+    // Disallow large transaction comments
+    if (tx.strTxComment.length() > MAX_TX_COMMENT_LEN)
+        return false;    
 
     if (!IsFinalTx(tx)) {
         reason = "non-final";
@@ -1250,6 +1255,10 @@ static const int64 nMinSubsidy = 1000 * COIN;
 
 int64 static GetBlockValue(int nHeight, int64 nFees)
 {
+		// swapover to WAS v2 - no more coins minted
+    if (nHeight > V2_HARDFORK_BLOCK)
+        return nFees;
+		
     int64 nSubsidy = nStartSubsidy;
 
     // Mining phase: Subsidy is cut in half every SubsidyHalvingInterval
@@ -3307,6 +3316,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             pfrom->fDisconnect = true;
             return false;
         }
+        
+        /* Don't allow old clients once the comment hardfork activates */
+        if (nBestHeight >= V2_HARDFORK_BLOCK && pfrom->nVersion < PROTOCOL_VERSION) {
+            printf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString().c_str(), pfrom->nVersion);
+            pfrom->fDisconnect = true;
+            return false;
+        }
 
         if (pfrom->nVersion == 10300)
             pfrom->nVersion = 300;
@@ -4292,6 +4308,7 @@ CBlockTemplate* CreateNewBlock(CReserveKey& reservekey)
 
     // Create coinbase tx
     CTransaction txNew;
+    txNew.nVersion = CurrentTransactionVersion();
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
     txNew.vout.resize(1);

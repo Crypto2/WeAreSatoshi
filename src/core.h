@@ -180,11 +180,13 @@ class CTransaction
 public:
     static int64 nMinTxFee;
     static int64 nMinRelayTxFee;
-    static const int CURRENT_VERSION=1;
+    static const int ORIGINAL_VERSION = 1;
+    static const int CURRENT_VERSION = 2;
     int nVersion;
     std::vector<CTxIn> vin;
     std::vector<CTxOut> vout;
     unsigned int nLockTime;
+    std::string strTxComment;
 
     CTransaction()
     {
@@ -198,14 +200,17 @@ public:
         READWRITE(vin);
         READWRITE(vout);
         READWRITE(nLockTime);
+        if(this->nVersion > ORIGINAL_VERSION)
+            READWRITE(strTxComment);
     )
 
     void SetNull()
     {
-        nVersion = CTransaction::CURRENT_VERSION;
+        nVersion = CTransaction::ORIGINAL_VERSION;
         vin.clear();
         vout.clear();
         nLockTime = 0;
+        strTxComment.clear();
     }
 
     bool IsNull() const
