@@ -19,7 +19,7 @@ static const char * pnSeed[] =
 	"66.85.164.76",
 	"184.95.40.150",
 	"107.170.140.109",
-	"162.243.15.107"
+	"192.99.37.224"
 };
 
 class CMainParams : public CChainParams {
@@ -82,7 +82,7 @@ public:
         assert(hashGenesisBlock == uint256("0x00000ae665347e2abddbc4b2e5dd2547e72b512240c8215e31a04e7f15d15762"));
         assert(genesis.hashMerkleRoot == uint256("0x888b2c9089c7694de6a2e562956427aa126400d4fead903c21ef3b98b3fa666a"));
 
-        vSeeds.push_back(CDNSSeedData("66.85.164.76", "66.85.164.76"));
+        //vSeeds.push_back(CDNSSeedData("66.85.164.76", "66.85.164.76"));
 
 
         base58Prefixes[PUBKEY_ADDRESS] = 73;
